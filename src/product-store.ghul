@@ -1,0 +1,46 @@
+namespace ProductAPI is
+    use Collections;
+
+    trait ProductStore is
+        create_product(product: PRODUCT) -> int;
+        update_product(id: int, product: PRODUCT) -> bool;
+        get_product(id: int) -> PRODUCT;
+        delete_product(id: int) -> bool;
+    si
+
+    class IN_MEMORY_PRODUCT_STORE: ProductStore is
+        _next_id: int;
+        _products: MutableMap[int,PRODUCT];
+
+        init() is
+            _products = MAP[int,PRODUCT]();
+        si
+
+        create_product(product: PRODUCT) -> int is
+            let result = _next_id;
+            _next_id = _next_id + 1;
+
+            _products[result] = product;
+
+            return result;            
+        si
+
+        get_product(id: int) -> PRODUCT =>
+            if _products.contains_key(id) then
+                _products[id]
+            else
+                null
+            fi;
+
+        update_product(id: int, product: PRODUCT) -> bool =>
+            if _products.contains_key(id) then
+                _products[id] = product;
+                true;
+            else
+                false;
+            fi;
+
+        delete_product(id: int) -> bool =>
+            _products.remove(id);        
+    si
+si
