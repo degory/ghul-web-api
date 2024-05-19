@@ -59,8 +59,8 @@ docker run -p 8080:8080 ghul-web-api:latest
 
 The API will start listening for HTTP requests on port 8080. To stop the server type `<ctrl>+C`
 
-## service
-The service responds to HTTP GET requests for `/weatherforcast` with a JSON payload holding a very simple randomly generated list of weather forecasts.
+## API endpoint
+The API responds to HTTP GET requests for `/weatherforecast` with a JSON payload holding a very simple randomly generated list of weather forecasts.
 
 ```sh
 $ curl http://localhost:5092/weatherforecast
