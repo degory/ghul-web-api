@@ -2,23 +2,24 @@
 
 This is a very simple ASP.NET 8 web API project written in ghūl. It's a direct translation of the C# weather forecast example into ghūl
 
-## prerequistites
+## prerequisites
 
 ### build
 To build the example you need:
-- ghūl compiler version 0.8.47 or later
-- ghūl Visual Studio Code language extension 0.6.32 or later
-- .NET SDK 8
+- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 0.8.47 or later
+- [ghūl Visual Studio Code language extension](https://marketplace.visualstudio.com/items?itemName=degory.ghul) 0.6.32 or later
+- [.NET SDK 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
-If you want to create a container image containing the example API, then you also need:
-- Docker
+If you want to create a container image that will host the example API, then you also need:
+- [Docker](https://www.docker.com/get-started)
 
 ### run
 
 To run the example you need **one** of the following, depending on your setup:
-- .NET 8 Runtime (for production environments)
-- .NET 8 SDK (for development environments)
-- Docker (to host the API in a container)
+- [ASP.NET Core Runtime 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (for production environments)
+- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (for development environments)
+- [Docker](https://www.docker.com/get-started) (to host the API in a container)
+
 
 ## build and run
 
