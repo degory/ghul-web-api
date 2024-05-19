@@ -4,13 +4,11 @@ namespace ProductAPI is
 
     trait ProductStore is
         create_product(product: PRODUCT) -> int;
-        update_product(id: int, product: PRODUCT) -> bool;
         get_product(id: int) -> PRODUCT;
+        update_product(id: int, product: PRODUCT) -> bool;
         delete_product(id: int) -> bool;
     si
 
-    // note this provides no mutual exclusion to avoid
-    // race conditions
     class IN_MEMORY_PRODUCT_STORE: ProductStore is
         _next_id: int;
         _products: CONCURRENT_MAP[int,PRODUCT];
