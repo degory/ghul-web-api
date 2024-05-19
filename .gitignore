@@ -12,7 +12,7 @@ publish/*
 **/binary
 **/*.mdb
 **/junit.xml
-**/out.il
+**/*.il
 **/*.runtimeconfig.json
 **/out.txt
 **/output.txt

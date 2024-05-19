@@ -2,28 +2,40 @@
 use System.Random;
 use System.DateOnly;
 use System.DateTime;
+use System.Uri;
 
 use Microsoft.AspNetCore.Builder;
 
+use Microsoft.OpenApi.Models;
+
+use Swashbuckle.AspNetCore.Swagger.SwaggerOptions;
+use Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions;
+
 // extension methods:
-use Microsoft.Extensions.DependencyInjection.EndpointMetadataApiExplorerServiceCollectionExtensions.add_endpoints_api_explorer;
-use Microsoft.Extensions.DependencyInjection.SwaggerGenServiceCollectionExtensions.add_swagger_gen;
-use Microsoft.Extensions.Hosting.HostEnvironmentEnvExtensions.is_development;
 use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_get;
 use Microsoft.AspNetCore.Builder.HttpsPolicyBuilderExtensions.use_https_redirection;
 use Microsoft.AspNetCore.Builder.OpenApiEndpointConventionBuilderExtensions.with_open_api;
 use Microsoft.AspNetCore.Builder.RoutingEndpointConventionBuilderExtensions.with_name;
 use Microsoft.AspNetCore.Builder.SwaggerBuilderExtensions.use_swagger;
 use Microsoft.AspNetCore.Builder.SwaggerUIBuilderExtensions.use_swagger_u_i;
+use Microsoft.Extensions.DependencyInjection.EndpointMetadataApiExplorerServiceCollectionExtensions.add_endpoints_api_explorer;
+use Microsoft.Extensions.DependencyInjection.SwaggerGenOptionsExtensions.swagger_doc;
+use Microsoft.Extensions.DependencyInjection.SwaggerGenServiceCollectionExtensions.add_swagger_gen;
+use Microsoft.Extensions.Hosting.HostEnvironmentEnvExtensions.is_development;
 
-use Swashbuckle.AspNetCore.Swagger.SwaggerOptions;
-use Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions;
 
 entry(args: string[]) is
     let builder = WebApplication.create_builder(args);
 
     add_endpoints_api_explorer(builder.services);
-    add_swagger_gen(builder.services, null);
+    add_swagger_gen(builder.services, config is 
+        let info = OpenApiInfo();
+
+        info.title = "Weather Forecast";
+        info.version = "v1";
+
+        swagger_doc(config, "v1", info);
+    si);
 
     let app = builder.build();
 
@@ -59,8 +71,7 @@ entry(args: string[]) is
     app.run(null);
 si
 
-// FIXME generates incorrect IL
-// @IL.name("WeatherForecast")
+@IL.name("WeatherForecast")
 class WEATHER_FORECAST is
     date: DateOnly;
 
