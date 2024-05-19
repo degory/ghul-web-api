@@ -23,7 +23,7 @@ namespace ProductAPI is
 
             _products[result] = product;
 
-            return result;            
+            return result;
         si
 
         get_product(id: int) -> PRODUCT =>
@@ -35,7 +35,15 @@ namespace ProductAPI is
             fi;
 
         update_product(id: int, product: PRODUCT) -> bool =>
-            _products.try_update(id, product, _products[id]);
+            let 
+                current: PRODUCT, 
+                exists = _products.try_get_value(id, current ref)
+            in
+                if exists then
+                    _products.try_update(id, product, current)
+                else
+                    false
+                fi;
 
         delete_product(id: int) -> bool =>
             let result: PRODUCT in
