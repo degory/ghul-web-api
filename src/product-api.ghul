@@ -5,8 +5,6 @@ namespace ProductAPI is
     use System.IServiceProvider;
     use System.Uri;
 
-    use Collections.LIST;
-
     use Microsoft.AspNetCore.Builder;
     use Microsoft.AspNetCore.Http;
 
@@ -134,5 +132,4 @@ namespace ProductAPI is
         init() is        
         si
     si
-
 si

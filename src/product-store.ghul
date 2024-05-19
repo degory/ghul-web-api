@@ -1,5 +1,6 @@
 namespace ProductAPI is
-    use Collections;
+    use interlocked_increment = System.Threading.Interlocked.increment;
+    use CONCURRENT_MAP = System.Collections.Concurrent.ConcurrentDictionary`2;
 
     trait ProductStore is
         create_product(product: PRODUCT) -> int;
@@ -8,17 +9,19 @@ namespace ProductAPI is
         delete_product(id: int) -> bool;
     si
 
+    // note this provides no mutual exclusion to avoid
+    // race conditions
     class IN_MEMORY_PRODUCT_STORE: ProductStore is
         _next_id: int;
-        _products: MutableMap[int,PRODUCT];
+        _products: CONCURRENT_MAP[int,PRODUCT];
 
         init() is
-            _products = MAP[int,PRODUCT]();
+            _next_id = -1;
+            _products = CONCURRENT_MAP[int,PRODUCT]();
         si
 
         create_product(product: PRODUCT) -> int is
-            let result = _next_id;
-            _next_id = _next_id + 1;
+            let result = interlocked_increment(_next_id ref);
 
             _products[result] = product;
 
@@ -26,21 +29,18 @@ namespace ProductAPI is
         si
 
         get_product(id: int) -> PRODUCT =>
-            if _products.contains_key(id) then
-                _products[id]
+            let result: PRODUCT in
+            if _products.try_get_value(id, result ref) then
+                result
             else
                 null
             fi;
 
         update_product(id: int, product: PRODUCT) -> bool =>
-            if _products.contains_key(id) then
-                _products[id] = product;
-                true;
-            else
-                false;
-            fi;
+            _products.try_update(id, product, _products[id]);
 
         delete_product(id: int) -> bool =>
-            _products.remove(id);        
+            let result: PRODUCT in
+            _products.try_remove(id, result ref);
     si
 si
