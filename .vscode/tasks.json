@@ -14,11 +14,48 @@
                 // Do not generate summary otherwise it leads to duplicate errors in Problems panel
                 "/consoleloggerparameters:NoSummary"
             ],
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "presentation": {
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
+        },        
+        {
+            "label": "docker-build",
+            "type": "shell",
+            "command": "docker build -t ghul-web-api:latest .",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "dotnet-run",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "run"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "docker-run",
+            "type": "shell",
+            "command": "docker run -p 8080:8080 ghul-web-api:latest",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "dependsOn": "docker-build"
         }
     ]
 }

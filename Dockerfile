@@ -11,7 +11,7 @@ WORKDIR /src
 COPY .config .config
 COPY ["ghul-web-api.ghulproj", "Directory.Build.props", "./"]
 RUN dotnet tool restore
-RUN dotnet restore "ghul-web-api.ghulproj"
+RUN dotnet restore
 COPY src/ src/
 RUN dotnet build -c Release -o /app/build
 
