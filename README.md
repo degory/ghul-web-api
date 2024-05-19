@@ -5,18 +5,20 @@ This is a very simple ASP.NET 8 web API project written in ghūl. It's a direct 
 ## prerequistites
 
 ### build
+To build the example you need:
 - ghūl compiler version 0.8.47 or later
 - ghūl Visual Studio Code language extension 0.6.32 or later
 - .NET SDK 8
 
+If you want to create a container image containing the example API, then you also need:
+- Docker
+
 ### run
-- .NET 8 Runtime (for production environments) 
 
-Or
+To run the example you need **one** of the following, depending on your setup:
+- .NET 8 Runtime (for production environments)
 - .NET 8 SDK (for development environments)
-
-Or
-- Docker 
+- Docker (to host the API in a container)
 
 ## build and run
 
