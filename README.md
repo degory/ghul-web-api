@@ -1,6 +1,6 @@
 # ghūl programming language ASP.NET 8 web API example
 
-This is a very simple ASP.NET 8 web API project written in ghūl. It's a direct translation of the C# weather forecast example into ghūl
+This is a very simple ASP.NET 8 web API project written in ghūl. It's a direct translation of the C# weather forecast example into ghūl.
 
 ## prerequisites
 
@@ -26,7 +26,7 @@ To run the example you need **one** of the following, depending on your setup:
 ### build
 `<ctrl>+<shift>+B` and choose `build` from the menu
 
-Or run in the terminal:
+Alternatively, use the following command in the terminal:
 ```sh
 dotnet build
 ```
@@ -34,7 +34,7 @@ dotnet build
 ### run in development mode with Swagger docs enabled
 `<ctrl>+<shift>+P`, choose `Tasks: Run Test Task`, then choose `dotnet run`
 
-Or run in the terminal:
+Alternatively, use the following command in the terminal:
 ```sh
 dotnet run
 ```
@@ -44,7 +44,7 @@ The API will start listening for HTTP requests on port 5092. To stop the server 
 ### build container image
 `<ctrl>+<shift>+B` and choose `docker build` from the menu
 
-Or run in the terminal
+Alternatively, use the following command in the terminal:
 ```sh
 docker build -t ghul-web-api:latest .
 ```
@@ -52,7 +52,7 @@ docker build -t ghul-web-api:latest .
 ### run in release mode in a container
 `<ctrl>+<shift>+P`, choose `Tasks: Run Test Task`, then choose `docker run`
 
-Or run in the terminal
+Alternatively, use the following command in the terminal:
 ```sh
 docker run -p 8080:8080 ghul-web-api:latest
 ```
@@ -60,11 +60,15 @@ docker run -p 8080:8080 ghul-web-api:latest
 The API will start listening for HTTP requests on port 8080. To stop the server type `<ctrl>+C`
 
 ## API endpoint
-The API responds to HTTP GET requests for `/weatherforecast` with a JSON payload holding a very simple randomly generated list of weather forecasts.
+The API responds to HTTP GET requests at `/weatherforecast` with a JSON payload containing a simple, randomly generated list of weather forecasts.
 
 ```sh
-$ curl http://localhost:5092/weatherforecast
+curl http://localhost:5092/weatherforecast
+```
+
+Sample output:
+```JSON 
 [{"date":"2024-05-20","temperatureC":14,"temperatureF":57,"summary":"Warm"},{"date":"2024-05-21","temperatureC":7,"temperatureF":44,"summary":"Mild"},{"date":"2024-05-22","temperatureC":7,"temperatureF":44,"summary":"Freezing"},{"date":"2024-05-23","temperatureC":8,"temperatureF":46,"summary":"Sweltering"},{"date":"2024-05-24","temperatureC":-14,"temperatureF":7,"summary":"Chilly"}]
 ```
 ## API docs
-When running in development mode, Swagger generated API documentation is exposed under `/swagger`
+Swagger generated API documentation is available under `/swagger` when running in development mode.
