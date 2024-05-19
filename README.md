@@ -59,16 +59,90 @@ docker run -p 8080:8080 ghul-web-api:latest
 
 The API will start listening for HTTP requests on port 8080. To stop the server type `<ctrl>+C`
 
-## API endpoint
-The API responds to HTTP GET requests at `/weatherforecast` with a JSON payload containing a simple, randomly generated list of weather forecasts.
+## API Endpoints
+This API provides a set of endpoints to manage a collection of dummy product objects stored in memory. Here are the available CRUD operations:
+
+- **POST /products**
+  - **Description**: Creates a new product and adds it to the store.
+  - **Request Body**: Expects a JSON object with `name` (string) and `price` (double).
+  - **Response**: Returns the ID of the newly created product.
+
+- **GET /products/{id}**
+  - **Description**: Retrieves a product by its ID.
+  - **Parameters**: `id` (int) – The unique identifier of the product.
+  - **Response**: Returns a JSON object with the product details or a 404 error if no product is found.
+
+- **PUT /products/{id}**
+  - **Description**: Updates an existing product identified by its ID.
+  - **Parameters**: `id` (int) – The unique identifier of the product.
+  - **Request Body**: Expects a JSON object with updated `name` and `price`.
+  - **Response**: Returns a 200 OK if the update is successful or a 404 error if the product is not found.
+
+- **DELETE /products/{id}**
+  - **Description**: Deletes a product by its ID.
+  - **Parameters**: `id` (int) – The unique identifier of the product.
+  - **Response**: Returns a 200 OK if the product is successfully deleted or a 404 error if the product is not found.
+
+### POST example
+#### Request
 
 ```sh
-curl http://localhost:5092/weatherforecast
+curl -X 'POST' \
+  'http://localhost:5092/products' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "book",
+  "price": 9.99
+}'
 ```
 
-Sample output:
-```JSON 
-[{"date":"2024-05-20","temperatureC":14,"temperatureF":57,"summary":"Warm"},{"date":"2024-05-21","temperatureC":7,"temperatureF":44,"summary":"Mild"},{"date":"2024-05-22","temperatureC":7,"temperatureF":44,"summary":"Freezing"},{"date":"2024-05-23","temperatureC":8,"temperatureF":46,"summary":"Sweltering"},{"date":"2024-05-24","temperatureC":-14,"temperatureF":7,"summary":"Chilly"}]
+#### Response
+Status code: `201 Created`
+
+Headers:
+```http
+content-type: application/json; charset=utf-8 
+date: Sun,19 May 2024 18:14:54 GMT 
+location: /products/1 
+server: Kestrel 
+transfer-encoding: chunked 
+```
+
+Body:
+```JSON
+{
+  "name": "book",
+  "price": 9.99
+}
+```
+
+### GET example
+#### Request
+
+```sh
+curl -X 'GET' \
+  'http://localhost:5092/products/1' \
+  -H 'accept: */*'
+```
+
+#### Response
+Status code: `200 OK`
+
+Headers:
+```http
+content-type: application/json; charset=utf-8 
+date: Sun,19 May 2024 18:20:11 GMT 
+server: Kestrel 
+transfer-encoding: chunked 
+```
+
+Body:
+```
+{
+  "name": "book",
+  "price": 9.99
+}
 ```
 ## API docs
 Swagger generated API documentation is available under `/swagger` when running in development mode.
