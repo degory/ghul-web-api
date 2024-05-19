@@ -1,6 +1,6 @@
 # ghūl programming language ASP.NET 8 web API example
 
-This is a very simple ASP.NET 8 web API project written in ghūl. It's a direct translation of the C# weather forecast example into ghūl.
+This project is straightforward ASP.NET 8 web API, implemented in the ghūl programming language. It provides CRUD interface for managing dummy product objects with Swagger API documentation.
 
 ## prerequisites
 
@@ -72,3 +72,11 @@ Sample output:
 ```
 ## API docs
 Swagger generated API documentation is available under `/swagger` when running in development mode.
+
+## ghūl implementation issues
+ghūl lacks a number of language features that the ASP.NET framework takes for granted: 
+- **extension methods**: ghūl's lack of extension methods precludes the usual fluent coding style. The workaround is to call the extension methods directly as static methods on their class
+- **attributes**: ghūl doesn't support attributes, meaning those parts the ASP.NET framework that rely on attributes are not practically accessible from ghūl code. Attribute support will be added to the compiler in a future release
+- **async/await**: ghūl doesn't support async/await. Asynchronous coding is still possible, but it's not pretty.
+- **unchecked constraints**: Some generic methods in ASP.NET have type parameter constraints that are not currently enforced by the ghūl compiler. It's important to manually ensure these constraints are met or the resulting code may fail to assemble or may throw at runtime 
+
