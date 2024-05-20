@@ -35,6 +35,9 @@ namespace ProductAPI is
             fi;
 
         update_product(id: int, product: PRODUCT) -> bool =>
+            // FIXME could return false if product is replaced
+            // between try_get_value and try_update, which
+            // the calling code will wrongly interpret as 'not found'
             let 
                 current: PRODUCT, 
                 exists = _products.try_get_value(id, current ref)

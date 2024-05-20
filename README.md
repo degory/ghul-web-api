@@ -1,6 +1,6 @@
 # ghūl programming language ASP.NET 8 web API example
 
-This project is straightforward ASP.NET 8 web API, implemented in the ghūl programming language. It provides CRUD interface for managing dummy product objects with Swagger API documentation.
+This project is straightforward [ASP.NET](https://dotnet.microsoft.com/en-us/apps/aspnet) 8 [web API](https://dotnet.microsoft.com/en-us/apps/aspnet/apis), implemented in the [ghūl programming language](https://ghul.dev). It implements a CRUD interface for managing dummy product objects with [Swagger API documentation](https://github.com/domaindrivendev/Swashbuckle.AspNetCore).
 
 ## prerequisites
 
