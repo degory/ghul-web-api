@@ -4,6 +4,7 @@ namespace ProductAPI is
     use System.DateTime;
     use System.IServiceProvider;
     use System.Uri;
+    use Tasks = System.Threading.Tasks;
 
     use Microsoft.AspNetCore.Builder;
     use Microsoft.AspNetCore.Http;
@@ -62,11 +63,13 @@ namespace ProductAPI is
 
         let post_product =
             map_post(
-                app, 
-                "/products", 
-                (store: ProductStore, product: PRODUCT) =>
-                    let id = store.create_product(product) in
-                    Results.created("/products/{id}", product)
+                app,
+                "/products",
+                (store: ProductStore, product: PRODUCT) -> Tasks.Task[IResult] is
+                    let await id = store.create_product(product);
+
+                    return Tasks.Task.from_result(Results.created("/products/{id}", product));
+                si
             );
 
         with_name(post_product, "PostProduct");
@@ -75,15 +78,17 @@ namespace ProductAPI is
 
         let get_product =
             map_get(
-                app, 
+                app,
                 "/products/{{index}}",
-                (store: ProductStore, index: int) =>
-                    let result = store.get_product(index) in
+                (store: ProductStore, index: int) -> Tasks.Task[IResult] is
+                    let await result = store.get_product(index);
+
                     if result? then
-                        Results.ok(result)
+                        return Tasks.Task.from_result(Results.ok(result));
                     else
-                        Results.not_found(null)
+                        return Tasks.Task.from_result(Results.not_found(null));
                     fi
+                si
             );
 
         with_name(get_product, "GetProduct");
@@ -94,12 +99,15 @@ namespace ProductAPI is
             map_put(
                 app,
                 "/products/{{index}}",
-                (store: ProductStore, index: int, product: PRODUCT) =>
-                    if store.update_product(index, product) then
-                        Results.ok(null)
+                (store: ProductStore, index: int, product: PRODUCT) -> Tasks.Task[IResult] is
+                    let await ok = store.update_product(index, product);
+
+                    if ok then
+                        return Tasks.Task.from_result(Results.ok(null));
                     else
-                        Results.not_found(null)
+                        return Tasks.Task.from_result(Results.not_found(null));
                     fi
+                si
             );
 
         with_name(put_product, "PutProduct");
@@ -110,12 +118,15 @@ namespace ProductAPI is
             map_delete(
                 app,
                 "/products/{{index}}",
-                (store: ProductStore, index: int) =>
-                    if store.delete_product(index) then
-                        Results.ok(null)
+                (store: ProductStore, index: int) -> Tasks.Task[IResult] is
+                    let await ok = store.delete_product(index);
+
+                    if ok then
+                        return Tasks.Task.from_result(Results.ok(null));
                     else
-                        Results.not_found(null)
+                        return Tasks.Task.from_result(Results.not_found(null));
                     fi
+                si
             );
 
         with_name(delete_product, "DeleteProduct");
