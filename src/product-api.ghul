@@ -36,9 +36,17 @@ namespace ProductAPI is
     entry(args: string[]) is
         let builder = WebApplication.create_builder(args);
 
-        add_singleton[ProductStore,IN_MEMORY_PRODUCT_STORE](
-            builder.services, 
-            (provider: IServiceProvider) => IN_MEMORY_PRODUCT_STORE()
+        let db_path = System.Environment.get_environment_variable("GHUL_WEBAPI_DB");
+        if !db_path? then
+            db_path = "products.db";
+        fi
+
+        let store = SQLITE_PRODUCT_STORE("Data Source={db_path}");
+        store.ensure_schema().wait();
+
+        add_singleton[ProductStore,SQLITE_PRODUCT_STORE](
+            builder.services,
+            (provider: IServiceProvider) => store
         );
 
         add_endpoints_api_explorer(builder.services);
@@ -62,11 +70,15 @@ namespace ProductAPI is
 
         let post_product =
             map_post(
-                app, 
-                "/products", 
-                (store: ProductStore, product: PRODUCT) =>
-                    let id = store.create_product(product) in
-                    Results.created("/products/{id}", product)
+                app,
+                "/products",
+                (store: ProductStore, product: PRODUCT) -> Tasks.TASK[IResult] is
+                    let await id = store.create_product(product);
+
+                    product.id = id;
+
+                    return Tasks.TASK.from_result(Results.created("/products/{id}", product));
+                si
             );
 
         with_name(post_product, "PostProduct");
@@ -75,15 +87,17 @@ namespace ProductAPI is
 
         let get_product =
             map_get(
-                app, 
+                app,
                 "/products/{{index}}",
-                (store: ProductStore, index: int) =>
-                    let result = store.get_product(index) in
+                (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
+                    let await result = store.get_product(index);
+
                     if result? then
-                        Results.ok(result)
+                        return Tasks.TASK.from_result(Results.ok(result));
                     else
-                        Results.not_found(null)
+                        return Tasks.TASK.from_result(Results.not_found(null));
                     fi
+                si
             );
 
         with_name(get_product, "GetProduct");
@@ -94,12 +108,15 @@ namespace ProductAPI is
             map_put(
                 app,
                 "/products/{{index}}",
-                (store: ProductStore, index: int, product: PRODUCT) =>
-                    if store.update_product(index, product) then
-                        Results.ok(null)
+                (store: ProductStore, index: int, product: PRODUCT) -> Tasks.TASK[IResult] is
+                    let await ok = store.update_product(index, product);
+
+                    if ok then
+                        return Tasks.TASK.from_result(Results.ok(null));
                     else
-                        Results.not_found(null)
+                        return Tasks.TASK.from_result(Results.not_found(null));
                     fi
+                si
             );
 
         with_name(put_product, "PutProduct");
@@ -110,12 +127,15 @@ namespace ProductAPI is
             map_delete(
                 app,
                 "/products/{{index}}",
-                (store: ProductStore, index: int) =>
-                    if store.delete_product(index) then
-                        Results.ok(null)
+                (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
+                    let await ok = store.delete_product(index);
+
+                    if ok then
+                        return Tasks.TASK.from_result(Results.ok(null));
                     else
-                        Results.not_found(null)
+                        return Tasks.TASK.from_result(Results.not_found(null));
                     fi
+                si
             );
 
         with_name(delete_product, "DeleteProduct");
@@ -126,10 +146,16 @@ namespace ProductAPI is
 
     @IL.name("Product")
     class PRODUCT is
-        name: string;
-        price: double; // we don't have decimal
+        @IL.name("Id")
+        id: int public;
 
-        init() is        
+        @IL.name("Name")
+        name: string public;
+
+        @IL.name("Price")
+        price: double public; // we don't have decimal
+
+        init() is
         si
     si
 si

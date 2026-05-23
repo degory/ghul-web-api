@@ -1,0 +1,138 @@
+namespace Test is
+    use Std = IO.Std;
+    use Tasks = System.Threading.Tasks;
+    use System.Net.Http.HttpClient;
+    use System.Net.Http.StringContent;
+    use System.Net.Http.HttpResponseMessage;
+    use System.Net.HttpStatusCode;
+    use System.Text.Encoding;
+    use System.Threading.Thread;
+
+    class FAILURE: System.Exception is
+        init(message: string) is
+            super.init(message);
+        si
+    si
+
+    class Main is
+        client: HttpClient;
+        base_url: string;
+        failures: int;
+
+        init() is
+            client = HttpClient();
+
+            let env_url = System.Environment.get_environment_variable("WEBAPI_URL");
+            if env_url? then
+                base_url = env_url;
+            else
+                base_url = "http://localhost:5092";
+            fi
+        si
+
+        fail(message: string) is
+            failures = failures + 1;
+            Std.write_line("FAIL: {message}");
+        si
+
+        assert_status(label: string, response: HttpResponseMessage, expected: int) is
+            let actual = cast int(response.status_code);
+            if actual != expected then
+                fail("{label}: expected status {expected}, got {actual}");
+            else
+                Std.write_line("ok: {label} -> {actual}");
+            fi
+        si
+
+        assert_contains(label: string, body: string, needle: string) is
+            if body.index_of(needle) < 0 then
+                fail("{label}: expected body to contain '{needle}', got '{body}'");
+            else
+                Std.write_line("ok: {label} body contains '{needle}'");
+            fi
+        si
+
+        json(content: string) -> StringContent =>
+            StringContent(content, Encoding.utf8, "application/json");
+
+        wait_for_ready() is
+            // Poll the API root with a known-404 path; any HTTP response
+            // means the server is accepting connections. Cap at ~30s.
+            let attempts = 0;
+            let ready = false;
+            while !ready /\ attempts < 60 do
+                try
+                    client.get_async("{base_url}/products/0").result;
+                    ready = true;
+                catch ex: System.Exception
+                    Thread.sleep(500);
+                    attempts = attempts + 1;
+                yrt
+            od
+
+            if !ready then
+                Std.write_line("server did not become ready");
+                System.Environment.exit(2);
+            fi
+        si
+
+        body_of(response: HttpResponseMessage) -> string =>
+            response.content.read_as_string_async().result;
+
+        run() -> int is
+            wait_for_ready();
+
+            let post1 = client.post_async("{base_url}/products", json("\{\"name\":\"book\",\"price\":9.99\}")).result;
+            assert_status("POST book", post1, 201);
+            let post1_body = body_of(post1);
+            assert_contains("POST book body", post1_body, "\"id\":1");
+            assert_contains("POST book body", post1_body, "\"name\":\"book\"");
+
+            let post2 = client.post_async("{base_url}/products", json("\{\"name\":\"pen\",\"price\":1.49\}")).result;
+            assert_status("POST pen", post2, 201);
+            let post2_body = body_of(post2);
+            assert_contains("POST pen body", post2_body, "\"id\":2");
+
+            let get1 = client.get_async("{base_url}/products/1").result;
+            assert_status("GET 1", get1, 200);
+            assert_contains("GET 1 body", body_of(get1), "\"name\":\"book\"");
+
+            let put1 = client.put_async("{base_url}/products/1", json("\{\"name\":\"updated\",\"price\":12.50\}")).result;
+            assert_status("PUT 1", put1, 200);
+
+            let get1_after = client.get_async("{base_url}/products/1").result;
+            assert_status("GET 1 after PUT", get1_after, 200);
+            assert_contains("GET 1 after PUT body", body_of(get1_after), "\"name\":\"updated\"");
+
+            let del1 = client.delete_async("{base_url}/products/1").result;
+            assert_status("DELETE 1", del1, 200);
+
+            let get1_gone = client.get_async("{base_url}/products/1").result;
+            assert_status("GET 1 after DELETE", get1_gone, 404);
+
+            let put_missing = client.put_async("{base_url}/products/99", json("\{\"name\":\"x\",\"price\":0.0\}")).result;
+            assert_status("PUT missing", put_missing, 404);
+
+            let del_missing = client.delete_async("{base_url}/products/99").result;
+            assert_status("DELETE missing", del_missing, 404);
+
+            let get_missing = client.get_async("{base_url}/products/99").result;
+            assert_status("GET missing", get_missing, 404);
+
+            if failures > 0 then
+                Std.write_line("");
+                Std.write_line("{failures} check(s) failed");
+                return 1;
+            fi
+
+            Std.write_line("");
+            Std.write_line("all checks passed");
+            return 0;
+        si
+
+        entry() static is
+            let exit_code = Main().run();
+            System.Environment.exit(exit_code);
+        si
+    si
+si

@@ -1,0 +1,109 @@
+namespace ProductAPI is
+    use System.Convert;
+    use Microsoft.Data.Sqlite.SqliteConnection;
+    use Microsoft.Data.Sqlite.SqliteParameter;
+
+    // ProductStore backed by SQLite via Microsoft.Data.Sqlite. Each call
+    // opens a fresh connection from the pool, runs one command async, and
+    // closes the connection — so callers truly suspend on I/O. The
+    // connection-per-call pattern is the simplest correct shape; ADO.NET
+    // pools the underlying handle so opens are cheap after the first.
+    class SQLITE_PRODUCT_STORE: ProductStore is
+        _connection_string: string;
+
+        init(connection_string: string) is
+            _connection_string = connection_string;
+        si
+
+        // Run pragma+CREATE TABLE once at startup. Returns Task so the
+        // caller can await before serving requests.
+        ensure_schema() -> Tasks.TASK is
+            let connection = SqliteConnection(_connection_string);
+            await connection.open_async();
+
+            let command = connection.create_command();
+            command.command_text = "CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, price REAL NOT NULL);";
+
+            await command.execute_non_query_async();
+
+            connection.close();
+
+            return Tasks.TASK.completed_task;
+        si
+
+        create_product(product: PRODUCT) -> Tasks.TASK[int] is
+            let connection = SqliteConnection(_connection_string);
+            await connection.open_async();
+
+            let command = connection.create_command();
+            command.command_text = "INSERT INTO products (name, price) VALUES ($name, $price); SELECT last_insert_rowid();";
+            command.parameters.add_with_value("$name", product.name);
+            command.parameters.add_with_value("$price", product.price);
+
+            let await scalar = command.execute_scalar_async();
+
+            connection.close();
+
+            return Tasks.TASK.from_result(Convert.to_int32(scalar));
+        si
+
+        get_product(id: int) -> Tasks.TASK[PRODUCT] is
+            let connection = SqliteConnection(_connection_string);
+            await connection.open_async();
+
+            let command = connection.create_command();
+            command.command_text =
+                "SELECT id, name, price FROM products WHERE id = $id;";
+            command.parameters.add_with_value("$id", id);
+
+            let await reader = command.execute_reader_async();
+            let await found = reader.read_async();
+
+            let result: PRODUCT = null;
+
+            if found then
+                result = PRODUCT();
+                result.id = reader.get_int32(0);
+                result.name = reader.get_string(1);
+                result.price = reader.get_double(2);
+            fi
+
+            connection.close();
+
+            return Tasks.TASK.from_result(result);
+        si
+
+        update_product(id: int, product: PRODUCT) -> Tasks.TASK[bool] is
+            let connection = SqliteConnection(_connection_string);
+            await connection.open_async();
+
+            let command = connection.create_command();
+            command.command_text =
+                "UPDATE products SET name = $name, price = $price WHERE id = $id;";
+            command.parameters.add_with_value("$name", product.name);
+            command.parameters.add_with_value("$price", product.price);
+            command.parameters.add_with_value("$id", id);
+
+            let await rows = command.execute_non_query_async();
+
+            connection.close();
+
+            return Tasks.TASK.from_result(rows > 0);
+        si
+
+        delete_product(id: int) -> Tasks.TASK[bool] is
+            let connection = SqliteConnection(_connection_string);
+            await connection.open_async();
+
+            let command = connection.create_command();
+            command.command_text = "DELETE FROM products WHERE id = $id;";
+            command.parameters.add_with_value("$id", id);
+
+            let await rows = command.execute_non_query_async();
+
+            connection.close();
+
+            return Tasks.TASK.from_result(rows > 0);
+        si
+    si
+si

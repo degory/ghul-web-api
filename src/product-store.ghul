@@ -1,55 +1,12 @@
 namespace ProductAPI is
-    use interlocked_increment = System.Threading.Interlocked.increment;
-    use CONCURRENT_MAP = System.Collections.Concurrent.ConcurrentDictionary`2;
-
+    // Every store method returns a Task so handlers can compose with
+    // `let await` / `await` and ASP.NET awaits the result before
+    // serialising. The SQLite-backed implementation in
+    // sqlite-product-store.ghul does real async I/O end-to-end.
     trait ProductStore is
-        create_product(product: PRODUCT) -> int;
-        get_product(id: int) -> PRODUCT;
-        update_product(id: int, product: PRODUCT) -> bool;
-        delete_product(id: int) -> bool;
-    si
-
-    class IN_MEMORY_PRODUCT_STORE: ProductStore is
-        _next_id: int;
-        _products: CONCURRENT_MAP[int,PRODUCT];
-
-        init() is
-            _next_id = -1;
-            _products = CONCURRENT_MAP[int,PRODUCT]();
-        si
-
-        create_product(product: PRODUCT) -> int is
-            let result = interlocked_increment(_next_id ref);
-
-            _products[result] = product;
-
-            return result;
-        si
-
-        get_product(id: int) -> PRODUCT =>
-            let result: PRODUCT in
-            if _products.try_get_value(id, result ref) then
-                result
-            else
-                null
-            fi;
-
-        update_product(id: int, product: PRODUCT) -> bool =>
-            // FIXME could return false if product is replaced
-            // between try_get_value and try_update, which
-            // the calling code will wrongly interpret as 'not found'
-            let 
-                current: PRODUCT, 
-                exists = _products.try_get_value(id, current ref)
-            in
-                if exists then
-                    _products.try_update(id, product, current)
-                else
-                    false
-                fi;
-
-        delete_product(id: int) -> bool =>
-            let result: PRODUCT in
-            _products.try_remove(id, result ref);
+        create_product(product: PRODUCT) -> Tasks.TASK[int];
+        get_product(id: int) -> Tasks.TASK[PRODUCT];
+        update_product(id: int, product: PRODUCT) -> Tasks.TASK[bool];
+        delete_product(id: int) -> Tasks.TASK[bool];
     si
 si

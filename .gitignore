@@ -7,6 +7,8 @@ obj/
 bin/
 nupkg/
 publish/*
+products.db
+products.db-*
 
 **/.assemblies.json
 **/binary
