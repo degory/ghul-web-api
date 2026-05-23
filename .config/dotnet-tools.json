@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "ghul.compiler": {
-      "version": "0.0.0-local-let-await-poc.1",
+      "version": "1.0.30",
       "commands": [
         "ghul-compiler"
       ],

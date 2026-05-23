@@ -6,7 +6,7 @@ This project is straightforward [ASP.NET](https://dotnet.microsoft.com/en-us/app
 
 ### build
 To build the example you need:
-- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 0.8.47 or later
+- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 1.0.30 or later
 - [ghūl Visual Studio Code language extension](https://marketplace.visualstudio.com/items?itemName=degory.ghul) 0.6.32 or later
 - [.NET SDK 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
@@ -147,10 +147,21 @@ Body:
 ## API docs
 Swagger generated API documentation is available under `/swagger` when running in development mode.
 
+## persistence
+Products are stored in a SQLite database via `Microsoft.Data.Sqlite`, with all reads and writes flowing through the `let await` / `await` desugar — the request thread really does suspend on the underlying I/O. By default the database file is `products.db` in the working directory; override with the `GHUL_WEBAPI_DB` environment variable.
+
+## tests
+A ghūl-driven HTTP smoke test lives under `tests/smoke-test/`. The orchestrator script `tests/run-smoke.sh` spins up the API against a temporary database, runs the test, and tears everything down:
+
+```sh
+tests/run-smoke.sh
+```
+
+The same script runs under GitHub Actions on every push and pull request (`.github/workflows/build-and-test.yml`).
+
 ## ghūl implementation issues
-ghūl lacks a number of language features that the ASP.NET framework takes for granted: 
+ghūl lacks a number of language features that the ASP.NET framework takes for granted:
 - **extension methods**: ghūl's lack of extension methods precludes the usual fluent coding style. The workaround is to call the extension methods directly as static methods on their class
 - **attributes**: ghūl doesn't support attributes, meaning those parts the ASP.NET framework that rely on attributes are not practically accessible from ghūl code. Attribute support will be added to the compiler in a future release
-- **async/await**: ghūl doesn't support async/await. Asynchronous coding is still possible, but it's not pretty.
-- **unchecked constraints**: Some generic methods in ASP.NET have type parameter constraints that are not currently enforced by the ghūl compiler. It's important to manually ensure these constraints are met or the resulting code may fail to assemble or may throw at runtime 
+- **unchecked constraints**: Some generic methods in ASP.NET have type parameter constraints that are not currently enforced by the ghūl compiler. It's important to manually ensure these constraints are met or the resulting code may fail to assemble or may throw at runtime
 
