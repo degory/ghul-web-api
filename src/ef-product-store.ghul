@@ -18,18 +18,18 @@ namespace ProductAPI is
 
         ensure_schema() -> Tasks.TASK is
             let context = PRODUCT_DB_CONTEXT(_options);
-            let await created = context.database.ensure_created_async(System.Threading.CancellationToken.none);
+            await context.database.ensure_created_async(System.Threading.CancellationToken.none);
             context.dispose();
-            return Tasks.TASK.completed_task;
+            return;
         si
 
         create_product(product: PRODUCT) -> Tasks.TASK[int] is
             let context = PRODUCT_DB_CONTEXT(_options);
             context.products.add(product);
-            let await rows = context.save_changes_async(System.Threading.CancellationToken.none);
+            await context.save_changes_async(System.Threading.CancellationToken.none);
             let id = product.id;
             context.dispose();
-            return Tasks.TASK.from_result(id);
+            return id;
         si
 
         get_product(id: int) -> Tasks.TASK[PRODUCT] is
@@ -39,7 +39,7 @@ namespace ProductAPI is
             let key: object[] = [cast object(id)];
             let product = context.products.find(key);
             context.dispose();
-            return Tasks.TASK.from_result(product);
+            return product;
         si
 
         update_product(id: int, product: PRODUCT) -> Tasks.TASK[bool] is
@@ -48,13 +48,13 @@ namespace ProductAPI is
             let existing = context.products.find(key);
             if !existing? then
                 context.dispose();
-                return Tasks.TASK.from_result(false);
+                return false;
             fi
             existing.name = product.name;
             existing.price = product.price;
-            let await rows = context.save_changes_async(System.Threading.CancellationToken.none);
+            let rows = await context.save_changes_async(System.Threading.CancellationToken.none);
             context.dispose();
-            return Tasks.TASK.from_result(rows > 0);
+            return rows > 0;
         si
 
         delete_product(id: int) -> Tasks.TASK[bool] is
@@ -63,12 +63,12 @@ namespace ProductAPI is
             let existing = context.products.find(key);
             if !existing? then
                 context.dispose();
-                return Tasks.TASK.from_result(false);
+                return false;
             fi
             context.products.remove(existing);
-            let await rows = context.save_changes_async(System.Threading.CancellationToken.none);
+            let rows = await context.save_changes_async(System.Threading.CancellationToken.none);
             context.dispose();
-            return Tasks.TASK.from_result(rows > 0);
+            return rows > 0;
         si
     si
 si

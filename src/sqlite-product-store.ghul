@@ -27,8 +27,7 @@ namespace ProductAPI is
             await command.execute_non_query_async();
 
             connection.close();
-
-            return Tasks.TASK.completed_task;
+            return;
         si
 
         create_product(product: PRODUCT) -> Tasks.TASK[int] is
@@ -40,11 +39,11 @@ namespace ProductAPI is
             command.parameters.add_with_value("$name", product.name);
             command.parameters.add_with_value("$price", product.price);
 
-            let await scalar = command.execute_scalar_async();
+            let scalar = await command.execute_scalar_async();
 
             connection.close();
 
-            return Tasks.TASK.from_result(Convert.to_int32(scalar));
+            return Convert.to_int32(scalar);
         si
 
         get_product(id: int) -> Tasks.TASK[PRODUCT] is
@@ -56,8 +55,8 @@ namespace ProductAPI is
                 "SELECT id, name, price FROM products WHERE id = $id;";
             command.parameters.add_with_value("$id", id);
 
-            let await reader = command.execute_reader_async();
-            let await found = reader.read_async();
+            let reader = await command.execute_reader_async();
+            let found = await reader.read_async();
 
             let result: PRODUCT = null;
 
@@ -70,7 +69,7 @@ namespace ProductAPI is
 
             connection.close();
 
-            return Tasks.TASK.from_result(result);
+            return result;
         si
 
         update_product(id: int, product: PRODUCT) -> Tasks.TASK[bool] is
@@ -84,11 +83,11 @@ namespace ProductAPI is
             command.parameters.add_with_value("$price", product.price);
             command.parameters.add_with_value("$id", id);
 
-            let await rows = command.execute_non_query_async();
+            let rows = await command.execute_non_query_async();
 
             connection.close();
 
-            return Tasks.TASK.from_result(rows > 0);
+            return rows > 0;
         si
 
         delete_product(id: int) -> Tasks.TASK[bool] is
@@ -99,11 +98,11 @@ namespace ProductAPI is
             command.command_text = "DELETE FROM products WHERE id = $id;";
             command.parameters.add_with_value("$id", id);
 
-            let await rows = command.execute_non_query_async();
+            let rows = await command.execute_non_query_async();
 
             connection.close();
 
-            return Tasks.TASK.from_result(rows > 0);
+            return rows > 0;
         si
     si
 si
