@@ -107,11 +107,11 @@ namespace ProductAPI is
                 app,
                 "/products",
                 (store: ProductStore, product: PRODUCT) -> Tasks.TASK[IResult] is
-                    let await id = store.create_product(product);
+                    let id = await store.create_product(product);
 
                     product.id = id;
 
-                    return Tasks.TASK.from_result(Results.created("/products/{id}", product));
+                    return Results.created("/products/{id}", product);
                 si
             );
 
@@ -124,12 +124,12 @@ namespace ProductAPI is
                 app,
                 "/products/{{index}}",
                 (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
-                    let await result = store.get_product(index);
+                    let result = await store.get_product(index);
 
                     if result? then
-                        return Tasks.TASK.from_result(Results.ok(result));
+                        return Results.ok(result);
                     else
-                        return Tasks.TASK.from_result(Results.not_found(null));
+                        return Results.not_found(null);
                     fi
                 si
             );
@@ -143,12 +143,12 @@ namespace ProductAPI is
                 app,
                 "/products/{{index}}",
                 (store: ProductStore, index: int, product: PRODUCT) -> Tasks.TASK[IResult] is
-                    let await ok = store.update_product(index, product);
+                    let ok = await store.update_product(index, product);
 
                     if ok then
-                        return Tasks.TASK.from_result(Results.ok(null));
+                        return Results.ok(null);
                     else
-                        return Tasks.TASK.from_result(Results.not_found(null));
+                        return Results.not_found(null);
                     fi
                 si
             );
@@ -162,12 +162,12 @@ namespace ProductAPI is
                 app,
                 "/products/{{index}}",
                 (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
-                    let await ok = store.delete_product(index);
+                    let ok = await store.delete_product(index);
 
                     if ok then
-                        return Tasks.TASK.from_result(Results.ok(null));
+                        return Results.ok(null);
                     else
-                        return Tasks.TASK.from_result(Results.not_found(null));
+                        return Results.not_found(null);
                     fi
                 si
             );
