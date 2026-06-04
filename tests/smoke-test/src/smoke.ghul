@@ -58,8 +58,8 @@ namespace Test is
         wait_for_ready() is
             // Poll the API root with a known-404 path; any HTTP response
             // means the server is accepting connections. Cap at ~30s.
-            let attempts = 0;
-            let ready = false;
+            let attempts mut = 0;
+            let ready mut = false;
             while !ready /\ attempts < 60 do
                 try
                     client.get_async("{base_url}/products/0").result;

@@ -40,7 +40,7 @@ namespace ProductAPI is
     entry(args: string[]) is
         let builder = WebApplication.create_builder(args);
 
-        let db_path = System.Environment.get_environment_variable("GHUL_WEBAPI_DB");
+        let db_path mut = System.Environment.get_environment_variable("GHUL_WEBAPI_DB");
         if !db_path? then
             db_path = "products.db";
         fi
@@ -55,7 +55,7 @@ namespace ProductAPI is
         // directly.
         let store_kind = System.Environment.get_environment_variable("GHUL_WEBAPI_STORE");
 
-        let store: ProductStore;
+        let store: ProductStore mut = default;
         if store_kind? /\ store_kind =~ "raw" then
             let raw = SQLITE_PRODUCT_STORE(connection_string);
             raw.ensure_schema().wait();

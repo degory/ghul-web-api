@@ -46,7 +46,7 @@ namespace ProductAPI is
             return Convert.to_int32(scalar);
         si
 
-        get_product(id: int) -> Tasks.TASK[PRODUCT] is
+        get_product(id: int) -> Tasks.TASK[PRODUCT?] is
             let connection = SqliteConnection(_connection_string);
             await connection.open_async();
 
@@ -58,7 +58,7 @@ namespace ProductAPI is
             let reader = await command.execute_reader_async();
             let found = await reader.read_async();
 
-            let result: PRODUCT = null;
+            let result: PRODUCT? mut = null;
 
             if found then
                 result = PRODUCT();
