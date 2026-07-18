@@ -143,9 +143,7 @@ namespace ProductAPI is
                 app,
                 "/products/{{index}}",
                 (store: ProductStore, index: int, product: PRODUCT) -> Tasks.TASK[IResult] is
-                    let ok = await store.update_product(index, product);
-
-                    if ok then
+                    if await store.update_product(index, product) then
                         return Results.ok(null);
                     else
                         return Results.not_found(null);
@@ -162,9 +160,7 @@ namespace ProductAPI is
                 app,
                 "/products/{{index}}",
                 (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
-                    let ok = await store.delete_product(index);
-
-                    if ok then
+                    if await store.delete_product(index) then
                         return Results.ok(null);
                     else
                         return Results.not_found(null);
