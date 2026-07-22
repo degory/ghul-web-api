@@ -8,7 +8,7 @@ namespace ProductAPI is
     use Microsoft.AspNetCore.Builder;
     use Microsoft.AspNetCore.Http;
 
-    use Microsoft.OpenApi.Models;
+    use Microsoft.OpenApi;
 
     use Swashbuckle.AspNetCore.Swagger.SwaggerOptions;
     use Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions;
@@ -55,11 +55,9 @@ namespace ProductAPI is
         // directly.
         let store_kind = System.Environment.get_environment_variable("GHUL_WEBAPI_STORE");
 
-        let store: ProductStore mut = default;
         if store_kind? /\ store_kind =~ "raw" then
             let raw = SQLITE_PRODUCT_STORE(connection_string);
             raw.ensure_schema().wait();
-            store = raw;
 
             add_singleton[ProductStore,SQLITE_PRODUCT_STORE](
                 builder.services,
@@ -75,7 +73,6 @@ namespace ProductAPI is
 
             let ef = EF_PRODUCT_STORE(options_builder.options);
             ef.ensure_schema().wait();
-            store = ef;
 
             add_singleton[ProductStore,EF_PRODUCT_STORE](
                 builder.services,

@@ -1,14 +1,14 @@
-# ghūl programming language ASP.NET 8 web API example
+# ghūl programming language ASP.NET 10 web API example
 
-This project is straightforward [ASP.NET](https://dotnet.microsoft.com/en-us/apps/aspnet) 8 [web API](https://dotnet.microsoft.com/en-us/apps/aspnet/apis), implemented in the [ghūl programming language](https://ghul.dev). It implements a CRUD interface for managing dummy product objects with [Swagger API documentation](https://github.com/domaindrivendev/Swashbuckle.AspNetCore).
+This project is straightforward [ASP.NET](https://dotnet.microsoft.com/en-us/apps/aspnet) 10 [web API](https://dotnet.microsoft.com/en-us/apps/aspnet/apis), implemented in the [ghūl programming language](https://ghul.dev). It implements a CRUD interface for managing dummy product objects with [Swagger API documentation](https://github.com/domaindrivendev/Swashbuckle.AspNetCore).
 
 ## prerequisites
 
 ### build
 To build the example you need:
-- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 1.0.30 or later
+- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 22.0.7 or later
 - [ghūl Visual Studio Code language extension](https://marketplace.visualstudio.com/items?itemName=degory.ghul) 0.6.32 or later
-- [.NET SDK 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [.NET SDK 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 
 If you want to create a container image that will host the example API, then you also need:
 - [Docker](https://www.docker.com/get-started)
@@ -16,8 +16,8 @@ If you want to create a container image that will host the example API, then you
 ### run
 
 To run the example you need **one** of the following, depending on your setup:
-- [ASP.NET Core Runtime 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (for production environments)
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (for development environments)
+- [ASP.NET Core Runtime 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (for production environments)
+- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) (for development environments)
 - [Docker](https://www.docker.com/get-started) (to host the API in a container)
 
 

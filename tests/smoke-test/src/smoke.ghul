@@ -14,7 +14,7 @@ namespace Test is
         si
     si
 
-    class Main is
+    class SMOKE_TEST is
         client: HttpClient;
         base_url: string;
         failures: int;
@@ -131,7 +131,7 @@ namespace Test is
         si
 
         entry() static is
-            let exit_code = Main().run();
+            let exit_code = SMOKE_TEST().run();
             System.Environment.exit(exit_code);
         si
     si
