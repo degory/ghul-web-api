@@ -1,9 +1,10 @@
 <Project>
   <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <Version>0.1.0-alpha.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ghul.runtime" Version="3.0.18" />
+    <PackageReference Include="ghul.runtime" />
   </ItemGroup>
 </Project>
