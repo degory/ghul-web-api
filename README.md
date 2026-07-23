@@ -6,7 +6,7 @@ This project is straightforward [ASP.NET](https://dotnet.microsoft.com/en-us/app
 
 ### build
 To build the example you need:
-- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 22.0.7 or later
+- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 22.1.0 or later
 - [ghūl Visual Studio Code language extension](https://marketplace.visualstudio.com/items?itemName=degory.ghul) 0.6.32 or later
 - [.NET SDK 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 
@@ -161,7 +161,7 @@ The same script runs under GitHub Actions on every push and pull request (`.gith
 
 ## ghūl implementation issues
 ghūl lacks a number of language features that the ASP.NET framework takes for granted:
-- **extension methods**: ghūl's lack of extension methods precludes the usual fluent coding style. The workaround is to call the extension methods directly as static methods on their class
+- **extension methods**: ghūl does not surface a type's extension methods as members, so they cannot be called as `receiver.method(...)`. Instead, `use` the extension method and call it with the `|>` thread-first operator, which passes the left-hand side as the method's first argument: `builder.services |> add_swagger_gen(...)` calls `AddSwaggerGen(builder.services, ...)`. Chains read left to right, so `app |> map_post(...) |> with_name(...) |> with_open_api()` mirrors the C# minimal-API fluent style
 - **attributes**: ghūl doesn't support attributes, meaning those parts the ASP.NET framework that rely on attributes are not practically accessible from ghūl code. Attribute support will be added to the compiler in a future release
 - **unchecked constraints**: Some generic methods in ASP.NET have type parameter constraints that are not currently enforced by the ghūl compiler. It's important to manually ensure these constraints are met or the resulting code may fail to assemble or may throw at runtime
 
