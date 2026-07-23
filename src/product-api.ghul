@@ -59,14 +59,12 @@ namespace ProductAPI is
             let raw = SQLITE_PRODUCT_STORE(connection_string);
             raw.ensure_schema().wait();
 
-            add_singleton[ProductStore,SQLITE_PRODUCT_STORE](
-                builder.services,
+            builder.services |> add_singleton[ProductStore,SQLITE_PRODUCT_STORE](
                 (provider: IServiceProvider) => raw
             );
         else
             let options_builder = DbContextOptionsBuilder();
-            use_sqlite(
-                options_builder,
+            options_builder |> use_sqlite(
                 connection_string,
                 (b: Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder) is si
             );
@@ -74,34 +72,33 @@ namespace ProductAPI is
             let ef = EF_PRODUCT_STORE(options_builder.options);
             ef.ensure_schema().wait();
 
-            add_singleton[ProductStore,EF_PRODUCT_STORE](
-                builder.services,
+            builder.services |> add_singleton[ProductStore,EF_PRODUCT_STORE](
                 (provider: IServiceProvider) => ef
             );
         fi
 
-        add_endpoints_api_explorer(builder.services);
-        add_swagger_gen(builder.services, config is 
+        builder.services |> add_endpoints_api_explorer();
+
+        builder.services |> add_swagger_gen(config is
             let info = OpenApiInfo();
 
             info.title = "Product Store";
             info.version = "v1";
 
-            swagger_doc(config, "v1", info);
+            config |> swagger_doc("v1", info);
         si);
 
         let app = builder.build();
 
-        if is_development(app.environment) then
-            use_swagger(app, cast SwaggerOptions -> void(null));
-            use_swagger_u_i(app, cast SwaggerUIOptions -> void(null));
+        if app.environment |> is_development() then
+            app |> use_swagger(cast SwaggerOptions -> void(null));
+            app |> use_swagger_u_i(cast SwaggerUIOptions -> void(null));
         fi
 
-        use_https_redirection(app);
+        app |> use_https_redirection();
 
-        let post_product =
-            map_post(
-                app,
+        app
+            |> map_post(
                 "/products",
                 (store: ProductStore, product: PRODUCT) -> Tasks.TASK[IResult] is
                     let id = await store.create_product(product);
@@ -110,15 +107,12 @@ namespace ProductAPI is
 
                     return Results.created("/products/{id}", product);
                 si
-            );
+            )
+            |> with_name("PostProduct")
+            |> with_open_api();
 
-        with_name(post_product, "PostProduct");
-        with_open_api(post_product);
-
-
-        let get_product =
-            map_get(
-                app,
+        app
+            |> map_get(
                 "/products/{{index}}",
                 (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
                     let result = await store.get_product(index);
@@ -129,15 +123,12 @@ namespace ProductAPI is
                         return Results.not_found(null);
                     fi
                 si
-            );
+            )
+            |> with_name("GetProduct")
+            |> with_open_api();
 
-        with_name(get_product, "GetProduct");
-        with_open_api(get_product);
-
-
-        let put_product =
-            map_put(
-                app,
+        app
+            |> map_put(
                 "/products/{{index}}",
                 (store: ProductStore, index: int, product: PRODUCT) -> Tasks.TASK[IResult] is
                     let ok = await store.update_product(index, product);
@@ -148,15 +139,12 @@ namespace ProductAPI is
                         return Results.not_found(null);
                     fi
                 si
-            );
+            )
+            |> with_name("PutProduct")
+            |> with_open_api();
 
-        with_name(put_product, "PutProduct");
-        with_open_api(put_product);
-
-
-        let delete_product =
-            map_delete(
-                app,
+        app
+            |> map_delete(
                 "/products/{{index}}",
                 (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
                     let ok = await store.delete_product(index);
@@ -167,10 +155,9 @@ namespace ProductAPI is
                         return Results.not_found(null);
                     fi
                 si
-            );
-
-        with_name(delete_product, "DeleteProduct");
-        with_open_api(delete_product);
+            )
+            |> with_name("DeleteProduct")
+            |> with_open_api();
 
         app.run(null);
     si
