@@ -6,7 +6,7 @@ This project is straightforward [ASP.NET](https://dotnet.microsoft.com/en-us/app
 
 ### build
 To build the example you need:
-- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 22.1.0 or later
+- [ghūl compiler](https://www.nuget.org/packages/ghul.compiler) version 22.1.4 or later
 - [ghūl Visual Studio Code language extension](https://marketplace.visualstudio.com/items?itemName=degory.ghul) 0.6.32 or later
 - [.NET SDK 10](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 
@@ -162,5 +162,5 @@ The same script runs under GitHub Actions on every push and pull request (`.gith
 ## ghūl implementation issues
 ghūl lacks a number of language features that the ASP.NET framework takes for granted:
 - **extension methods**: ghūl does not surface a type's extension methods as members, so they cannot be called as `receiver.method(...)`. Instead, `use` the extension method and call it with the `|>` thread-first operator, which passes the left-hand side as the method's first argument: `builder.services |> add_swagger_gen(...)` calls `AddSwaggerGen(builder.services, ...)`. Chains read left to right, so `app |> map_post(...) |> with_name(...) |> with_open_api()` mirrors the C# minimal-API fluent style
-- **attributes**: ghūl supports .NET attributes on declarations (classes, methods, fields), so controller-style ASP.NET attributes such as `[ApiController]`, `[Route(...)]`, and `[HttpGet(...)]`/`[HttpPost(...)]` can be applied, with positional and named arguments. Two limitations remain: attributes cannot be placed on method parameters, so parameter-binding attributes like `[FromBody]` and `[FromQuery]` are not expressible; and attribute types whose name has a generic overload (`[Produces]`, `[ProducesResponseType]`) or whose only matching constructor takes a `params` array (`[Consumes]`) do not currently resolve. The minimal-API style this example uses needs none of these
+- **attributes**: ghūl supports .NET attributes on declarations (classes, methods, fields) with positional and named arguments, so controller-style ASP.NET attributes such as `[ApiController]`, `[Route(...)]`, `[HttpGet(...)]`/`[HttpPost(...)]`, `[Produces(...)]`, and `[Consumes(...)]` can be applied. One limitation remains: attributes cannot be placed on method parameters, so parameter-binding attributes like `[FromBody]` and `[FromQuery]` are not expressible. The minimal-API style this example uses does not need parameter attributes
 
