@@ -20,14 +20,22 @@ defect here even when it is correct.
 
 ## What to watch for here
 
+- **The storage layer**, which is the substantive half of the example. `ProductStore`
+  is a trait with two implementations — `EF_PRODUCT_STORE` over Entity Framework and
+  `SQLITE_PRODUCT_STORE` doing real async I/O against a connection from the pool. A
+  change to the trait that only one implementation honours, or behaviour that
+  diverges between them, breaks the point the example is making.
+- **Async correctness.** Both stores are async end to end. Watch for a missing
+  `await`, a connection or command not disposed on every path including the failing
+  one, and cancellation tokens dropped rather than threaded through.
 - Anything that would not build or run for a reader following the README. Drift
   between the README's stated prerequisites and what the project actually requires
   is a real defect in a repo whose purpose is to be followed.
 - Non-idiomatic ghūl. This is example code; an idiom nobody would recommend teaches
   the wrong thing.
-- ASP.NET correctness: route conflicts, missing or wrong status codes, unhandled
-  null paths through the CRUD handlers, Swagger annotations disagreeing with the
-  actual signature.
+- ASP.NET surface: route conflicts, missing or wrong status codes, unhandled null
+  paths through the CRUD handlers, Swagger annotations disagreeing with the actual
+  signature.
 - Docs drifting from code. The README documents build and run steps in detail; a
   structural or dependency change that leaves it stale is worth flagging.
 
