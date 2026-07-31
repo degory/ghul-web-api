@@ -97,10 +97,17 @@ namespace ProductAPI is
 
         app |> use_https_redirection();
 
+        // ASP.NET's minimal-API binding source inference would reach
+        // the same result for every parameter below without these —
+        // they're written explicitly to pin the binding source rather
+        // than leave it to inference.
         app
             |> map_post(
                 "/products",
-                (store: ProductStore, product: PRODUCT) -> Tasks.TASK[IResult] is
+                (
+                    @Microsoft.AspNetCore.Mvc.FromServices() store: ProductStore,
+                    @Microsoft.AspNetCore.Mvc.FromBody() product: PRODUCT
+                ) -> Tasks.TASK[IResult] is
                     let id = await store.create_product(product);
 
                     product.id = id;
@@ -114,7 +121,10 @@ namespace ProductAPI is
         app
             |> map_get(
                 "/products/{{index}}",
-                (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
+                (
+                    @Microsoft.AspNetCore.Mvc.FromServices() store: ProductStore,
+                    @Microsoft.AspNetCore.Mvc.FromRoute() index: int
+                ) -> Tasks.TASK[IResult] is
                     let result = await store.get_product(index);
 
                     if result? then
@@ -130,7 +140,11 @@ namespace ProductAPI is
         app
             |> map_put(
                 "/products/{{index}}",
-                (store: ProductStore, index: int, product: PRODUCT) -> Tasks.TASK[IResult] is
+                (
+                    @Microsoft.AspNetCore.Mvc.FromServices() store: ProductStore,
+                    @Microsoft.AspNetCore.Mvc.FromRoute() index: int,
+                    @Microsoft.AspNetCore.Mvc.FromBody() product: PRODUCT
+                ) -> Tasks.TASK[IResult] is
                     let ok = await store.update_product(index, product);
 
                     if ok then
@@ -146,7 +160,10 @@ namespace ProductAPI is
         app
             |> map_delete(
                 "/products/{{index}}",
-                (store: ProductStore, index: int) -> Tasks.TASK[IResult] is
+                (
+                    @Microsoft.AspNetCore.Mvc.FromServices() store: ProductStore,
+                    @Microsoft.AspNetCore.Mvc.FromRoute() index: int
+                ) -> Tasks.TASK[IResult] is
                     let ok = await store.delete_product(index);
 
                     if ok then
