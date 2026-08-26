@@ -163,3 +163,7 @@ The same script runs under GitHub Actions on every push and pull request (`.gith
 ghūl lacks a number of language features that the ASP.NET framework takes for granted:
 - **extension methods**: ghūl does not surface a type's extension methods as members, so they cannot be called as `receiver.method(...)`. Instead, `use` the extension method and call it with the `|>` thread-first operator, which passes the left-hand side as the method's first argument: `builder.services |> add_swagger_gen(...)` calls `AddSwaggerGen(builder.services, ...)`. Chains read left to right, so `app |> map_post(...) |> with_name(...) |> with_open_api()` mirrors the C# minimal-API fluent style
 
+
+## issues
+
+[View open issues](https://github.com/degory/ghul/issues?q=is%3Aopen+is%3Aissue+label%3Aghul-web-api) or [raise a new one](https://github.com/degory/ghul/issues/new?labels=ghul-web-api).
