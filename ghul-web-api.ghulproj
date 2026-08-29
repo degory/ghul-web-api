@@ -9,6 +9,12 @@
   <ItemGroup>
     <GhulSources Include="src/**/*.ghul" />
 
+
+    <!-- Terminator-free sources; error on CI so stray `;` cannot creep
+         back in, warning locally. -->
+    <GhulOptions Include="--warn redundant-semicolon" />
+    <GhulOptions Include="--warn-as-error redundant-semicolon" Condition="'$(CI)' != ''" />
+
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Microsoft.Data.Sqlite" />

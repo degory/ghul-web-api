@@ -1,5 +1,5 @@
 namespace ProductAPI is
-    use Microsoft.EntityFrameworkCore.DbContextOptions;
+    use Microsoft.EntityFrameworkCore.DbContextOptions
 
     // ProductStore backed by Entity Framework Core (SQLite provider).
     // Mirrors SQLITE_PRODUCT_STORE's connection-per-call shape: each
@@ -10,55 +10,55 @@ namespace ProductAPI is
     // Auto-assigns Id on Add via the table's INTEGER PRIMARY KEY
     // AUTOINCREMENT (see PRODUCT_DB_CONTEXT + EnsureCreated).
     class EF_PRODUCT_STORE: ProductStore is
-        _options: DbContextOptions;
+        _options: DbContextOptions
 
         init(options: DbContextOptions) is
             _options = options;
         si
 
         ensure_schema() -> Tasks.TASK is
-            let use context = PRODUCT_DB_CONTEXT(_options);
-            await context.database.ensure_created_async(System.Threading.CancellationToken.none);
+            let use context = PRODUCT_DB_CONTEXT(_options)
+            await context.database.ensure_created_async(System.Threading.CancellationToken.none)
             return;
         si
 
         create_product(product: PRODUCT) -> Tasks.TASK[int] is
-            let use context = PRODUCT_DB_CONTEXT(_options);
-            context.products.add(product);
-            await context.save_changes_async(System.Threading.CancellationToken.none);
+            let use context = PRODUCT_DB_CONTEXT(_options)
+            context.products.add(product)
+            await context.save_changes_async(System.Threading.CancellationToken.none)
             return product.id;
         si
 
         get_product(id: int) -> Tasks.TASK[PRODUCT?] is
-            let use context = PRODUCT_DB_CONTEXT(_options);
+            let use context = PRODUCT_DB_CONTEXT(_options)
             // DbSet<T>.Find takes a primary-key tuple as object[];
             // for a single-key entity that's a one-element box.
-            let key: object[] = [cast object(id)];
+            let key: object[] = [cast object(id)]
             return context.products.find(key);
         si
 
         update_product(id: int, product: PRODUCT) -> Tasks.TASK[bool] is
-            let use context = PRODUCT_DB_CONTEXT(_options);
-            let key: object[] = [cast object(id)];
-            let existing = context.products.find(key);
+            let use context = PRODUCT_DB_CONTEXT(_options)
+            let key: object[] = [cast object(id)]
+            let existing = context.products.find(key)
             if !existing? then
                 return false;
             fi
-            existing.name = product.name;
-            existing.price = product.price;
-            let rows = await context.save_changes_async(System.Threading.CancellationToken.none);
+            existing.name = product.name
+            existing.price = product.price
+            let rows = await context.save_changes_async(System.Threading.CancellationToken.none)
             return rows > 0;
         si
 
         delete_product(id: int) -> Tasks.TASK[bool] is
-            let use context = PRODUCT_DB_CONTEXT(_options);
-            let key: object[] = [cast object(id)];
-            let existing = context.products.find(key);
+            let use context = PRODUCT_DB_CONTEXT(_options)
+            let key: object[] = [cast object(id)]
+            let existing = context.products.find(key)
             if !existing? then
                 return false;
             fi
-            context.products.remove(existing);
-            let rows = await context.save_changes_async(System.Threading.CancellationToken.none);
+            context.products.remove(existing)
+            let rows = await context.save_changes_async(System.Threading.CancellationToken.none)
             return rows > 0;
         si
     si

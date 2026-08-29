@@ -1,7 +1,7 @@
 namespace ProductAPI is
-    use Microsoft.EntityFrameworkCore.DbContext;
-    use Microsoft.EntityFrameworkCore.DbSet;
-    use Microsoft.EntityFrameworkCore.DbContextOptions;
+    use Microsoft.EntityFrameworkCore.DbContext
+    use Microsoft.EntityFrameworkCore.DbSet
+    use Microsoft.EntityFrameworkCore.DbContextOptions
 
     // EF Core context owning the Products table. EF picks up the
     // public `Products` DbSet (renamed via @IL.name) and the `Id`
@@ -13,7 +13,7 @@ namespace ProductAPI is
     // DbContextOptionsBuilder<T> at the call site.
     class PRODUCT_DB_CONTEXT: DbContext is
         @IL.name("Products")
-        products: DbSet[PRODUCT];
+        products: DbSet[PRODUCT]
 
         init(options: DbContextOptions) is
             super.init(options);
