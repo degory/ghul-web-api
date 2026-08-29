@@ -4,9 +4,9 @@ namespace ProductAPI is
     // serialising. The SQLite-backed implementation in
     // sqlite-product-store.ghul does real async I/O end-to-end.
     trait ProductStore is
-        create_product(product: PRODUCT) -> Tasks.TASK[int];
-        get_product(id: int) -> Tasks.TASK[PRODUCT?];
-        update_product(id: int, product: PRODUCT) -> Tasks.TASK[bool];
+        create_product(product: PRODUCT) -> Tasks.TASK[int]
+        get_product(id: int) -> Tasks.TASK[PRODUCT?]
+        update_product(id: int, product: PRODUCT) -> Tasks.TASK[bool]
         delete_product(id: int) -> Tasks.TASK[bool];
     si
 si

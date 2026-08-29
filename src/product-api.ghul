@@ -1,51 +1,51 @@
 namespace ProductAPI is
-    use System.Random;
-    use System.DateOnly;
-    use System.DateTime;
-    use System.IServiceProvider;
-    use System.Uri;
+    use System.Random
+    use System.DateOnly
+    use System.DateTime
+    use System.IServiceProvider
+    use System.Uri
 
-    use Microsoft.AspNetCore.Builder;
-    use Microsoft.AspNetCore.Http;
+    use Microsoft.AspNetCore.Builder
+    use Microsoft.AspNetCore.Http
 
-    use Microsoft.OpenApi;
+    use Microsoft.OpenApi
 
-    use Swashbuckle.AspNetCore.Swagger.SwaggerOptions;
-    use Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions;
+    use Swashbuckle.AspNetCore.Swagger.SwaggerOptions
+    use Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions
 
     // extension methods:
-    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_delete;
-    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_get;
-    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_post;
-    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_put;
-    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_methods;
+    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_delete
+    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_get
+    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_post
+    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_put
+    use Microsoft.AspNetCore.Builder.EndpointRouteBuilderExtensions.map_methods
 
-    use Microsoft.AspNetCore.Builder.HttpsPolicyBuilderExtensions.use_https_redirection;
-    use Microsoft.AspNetCore.Builder.OpenApiEndpointConventionBuilderExtensions.with_open_api;
-    use Microsoft.AspNetCore.Builder.RoutingEndpointConventionBuilderExtensions.with_name;
-    use Microsoft.AspNetCore.Builder.SwaggerBuilderExtensions.use_swagger;
-    use Microsoft.AspNetCore.Builder.SwaggerUIBuilderExtensions.use_swagger_u_i;
-    use Microsoft.Extensions.DependencyInjection.EndpointMetadataApiExplorerServiceCollectionExtensions.add_endpoints_api_explorer;
-    use Microsoft.Extensions.DependencyInjection.SwaggerGenOptionsExtensions.swagger_doc;
-    use Microsoft.Extensions.DependencyInjection.SwaggerGenServiceCollectionExtensions.add_swagger_gen;
-    use Microsoft.Extensions.DependencyInjection.ServiceCollectionServiceExtensions.add_singleton;
+    use Microsoft.AspNetCore.Builder.HttpsPolicyBuilderExtensions.use_https_redirection
+    use Microsoft.AspNetCore.Builder.OpenApiEndpointConventionBuilderExtensions.with_open_api
+    use Microsoft.AspNetCore.Builder.RoutingEndpointConventionBuilderExtensions.with_name
+    use Microsoft.AspNetCore.Builder.SwaggerBuilderExtensions.use_swagger
+    use Microsoft.AspNetCore.Builder.SwaggerUIBuilderExtensions.use_swagger_u_i
+    use Microsoft.Extensions.DependencyInjection.EndpointMetadataApiExplorerServiceCollectionExtensions.add_endpoints_api_explorer
+    use Microsoft.Extensions.DependencyInjection.SwaggerGenOptionsExtensions.swagger_doc
+    use Microsoft.Extensions.DependencyInjection.SwaggerGenServiceCollectionExtensions.add_swagger_gen
+    use Microsoft.Extensions.DependencyInjection.ServiceCollectionServiceExtensions.add_singleton
 
 
-    use Microsoft.Extensions.Hosting.HostEnvironmentEnvExtensions.is_development;
+    use Microsoft.Extensions.Hosting.HostEnvironmentEnvExtensions.is_development
 
     // EF Core extension method — must be `use`d to be callable from ghūl.
-    use Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.use_sqlite;
-    use Microsoft.EntityFrameworkCore.DbContextOptionsBuilder;
+    use Microsoft.EntityFrameworkCore.SqliteDbContextOptionsBuilderExtensions.use_sqlite
+    use Microsoft.EntityFrameworkCore.DbContextOptionsBuilder
 
     entry(args: string[]) is
-        let builder = WebApplication.create_builder(args);
+        let builder = WebApplication.create_builder(args)
 
-        let db_path mut = System.Environment.get_environment_variable("GHUL_WEBAPI_DB");
+        let db_path mut = System.Environment.get_environment_variable("GHUL_WEBAPI_DB")
         if !db_path? then
             db_path = "products.db";
         fi
 
-        let connection_string = "Data Source={db_path}";
+        let connection_string = "Data Source={db_path}"
 
         // Two store implementations coexist — `EF_PRODUCT_STORE`
         // (default) uses Entity Framework Core's SQLite provider and
@@ -53,49 +53,49 @@ namespace ProductAPI is
         // GHUL_WEBAPI_STORE=raw switches to the hand-rolled
         // `SQLITE_PRODUCT_STORE` that talks to Microsoft.Data.Sqlite
         // directly.
-        let store_kind = System.Environment.get_environment_variable("GHUL_WEBAPI_STORE");
+        let store_kind = System.Environment.get_environment_variable("GHUL_WEBAPI_STORE")
 
         if store_kind? /\ store_kind =~ "raw" then
-            let raw = SQLITE_PRODUCT_STORE(connection_string);
-            raw.ensure_schema().wait();
+            let raw = SQLITE_PRODUCT_STORE(connection_string)
+            raw.ensure_schema().wait()
 
             builder.services |> add_singleton[ProductStore,SQLITE_PRODUCT_STORE](
                 (provider: IServiceProvider) => raw
             );
         else
-            let options_builder = DbContextOptionsBuilder();
+            let options_builder = DbContextOptionsBuilder()
             options_builder |> use_sqlite(
                 connection_string,
                 (b: Microsoft.EntityFrameworkCore.Infrastructure.SqliteDbContextOptionsBuilder) is si
-            );
+            )
 
-            let ef = EF_PRODUCT_STORE(options_builder.options);
-            ef.ensure_schema().wait();
+            let ef = EF_PRODUCT_STORE(options_builder.options)
+            ef.ensure_schema().wait()
 
             builder.services |> add_singleton[ProductStore,EF_PRODUCT_STORE](
                 (provider: IServiceProvider) => ef
             );
         fi
 
-        builder.services |> add_endpoints_api_explorer();
+        builder.services |> add_endpoints_api_explorer()
 
         builder.services |> add_swagger_gen(config is
-            let info = OpenApiInfo();
+            let info = OpenApiInfo()
 
-            info.title = "Product Store";
-            info.version = "v1";
+            info.title = "Product Store"
+            info.version = "v1"
 
             config |> swagger_doc("v1", info);
-        si);
+        si)
 
-        let app = builder.build();
+        let app = builder.build()
 
         if app.environment |> is_development() then
-            app |> use_swagger(cast SwaggerOptions -> void(null));
+            app |> use_swagger(cast SwaggerOptions -> void(null))
             app |> use_swagger_u_i(cast SwaggerUIOptions -> void(null));
         fi
 
-        app |> use_https_redirection();
+        app |> use_https_redirection()
 
         // ASP.NET's minimal-API binding source inference would reach
         // the same result for every parameter below without these —
@@ -108,15 +108,15 @@ namespace ProductAPI is
                     @Microsoft.AspNetCore.Mvc.FromServices() store: ProductStore,
                     @Microsoft.AspNetCore.Mvc.FromBody() product: PRODUCT
                 ) -> Tasks.TASK[IResult] is
-                    let id = await store.create_product(product);
+                    let id = await store.create_product(product)
 
-                    product.id = id;
+                    product.id = id
 
                     return Results.created("/products/{id}", product);
                 si
             )
             |> with_name("PostProduct")
-            |> with_open_api();
+            |> with_open_api()
 
         app
             |> map_get(
@@ -125,7 +125,7 @@ namespace ProductAPI is
                     @Microsoft.AspNetCore.Mvc.FromServices() store: ProductStore,
                     @Microsoft.AspNetCore.Mvc.FromRoute() index: int
                 ) -> Tasks.TASK[IResult] is
-                    let result = await store.get_product(index);
+                    let result = await store.get_product(index)
 
                     if result? then
                         return Results.ok(result);
@@ -135,7 +135,7 @@ namespace ProductAPI is
                 si
             )
             |> with_name("GetProduct")
-            |> with_open_api();
+            |> with_open_api()
 
         app
             |> map_put(
@@ -145,7 +145,7 @@ namespace ProductAPI is
                     @Microsoft.AspNetCore.Mvc.FromRoute() index: int,
                     @Microsoft.AspNetCore.Mvc.FromBody() product: PRODUCT
                 ) -> Tasks.TASK[IResult] is
-                    let ok = await store.update_product(index, product);
+                    let ok = await store.update_product(index, product)
 
                     if ok then
                         return Results.ok(null);
@@ -155,7 +155,7 @@ namespace ProductAPI is
                 si
             )
             |> with_name("PutProduct")
-            |> with_open_api();
+            |> with_open_api()
 
         app
             |> map_delete(
@@ -164,7 +164,7 @@ namespace ProductAPI is
                     @Microsoft.AspNetCore.Mvc.FromServices() store: ProductStore,
                     @Microsoft.AspNetCore.Mvc.FromRoute() index: int
                 ) -> Tasks.TASK[IResult] is
-                    let ok = await store.delete_product(index);
+                    let ok = await store.delete_product(index)
 
                     if ok then
                         return Results.ok(null);
@@ -174,7 +174,7 @@ namespace ProductAPI is
                 si
             )
             |> with_name("DeleteProduct")
-            |> with_open_api();
+            |> with_open_api()
 
         app.run(null);
     si
@@ -182,13 +182,13 @@ namespace ProductAPI is
     @IL.name("Product")
     class PRODUCT is
         @IL.name("Id")
-        id: int public;
+        id: int public
 
         @IL.name("Name")
-        name: string public;
+        name: string public
 
         @IL.name("Price")
-        price: double public; // we don't have decimal
+        price: double public // we don't have decimal
 
         init() is
         si
