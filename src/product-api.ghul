@@ -42,7 +42,7 @@ namespace ProductAPI is
 
         let db_path mut = System.Environment.get_environment_variable("GHUL_WEBAPI_DB")
         if !db_path? then
-            db_path = "products.db";
+            db_path = "products.db"
         fi
 
         let connection_string = "Data Source={db_path}"
@@ -61,7 +61,7 @@ namespace ProductAPI is
 
             builder.services |> add_singleton[ProductStore,SQLITE_PRODUCT_STORE](
                 (provider: IServiceProvider) => raw
-            );
+            )
         else
             let options_builder = DbContextOptionsBuilder()
             options_builder |> use_sqlite(
@@ -74,7 +74,7 @@ namespace ProductAPI is
 
             builder.services |> add_singleton[ProductStore,EF_PRODUCT_STORE](
                 (provider: IServiceProvider) => ef
-            );
+            )
         fi
 
         builder.services |> add_endpoints_api_explorer()
@@ -85,14 +85,14 @@ namespace ProductAPI is
             info.title = "Product Store"
             info.version = "v1"
 
-            config |> swagger_doc("v1", info);
+            config |> swagger_doc("v1", info)
         si)
 
         let app = builder.build()
 
         if app.environment |> is_development() then
             app |> use_swagger(cast SwaggerOptions -> void(null))
-            app |> use_swagger_u_i(cast SwaggerUIOptions -> void(null));
+            app |> use_swagger_u_i(cast SwaggerUIOptions -> void(null))
         fi
 
         app |> use_https_redirection()
@@ -112,7 +112,7 @@ namespace ProductAPI is
 
                     product.id = id
 
-                    return Results.created("/products/{id}", product);
+                    return Results.created("/products/{id}", product)
                 si
             )
             |> with_name("PostProduct")
@@ -128,9 +128,9 @@ namespace ProductAPI is
                     let result = await store.get_product(index)
 
                     if result? then
-                        return Results.ok(result);
+                        return Results.ok(result)
                     else
-                        return Results.not_found(null);
+                        return Results.not_found(null)
                     fi
                 si
             )
@@ -148,9 +148,9 @@ namespace ProductAPI is
                     let ok = await store.update_product(index, product)
 
                     if ok then
-                        return Results.ok(null);
+                        return Results.ok(null)
                     else
-                        return Results.not_found(null);
+                        return Results.not_found(null)
                     fi
                 si
             )
@@ -167,16 +167,16 @@ namespace ProductAPI is
                     let ok = await store.delete_product(index)
 
                     if ok then
-                        return Results.ok(null);
+                        return Results.ok(null)
                     else
-                        return Results.not_found(null);
+                        return Results.not_found(null)
                     fi
                 si
             )
             |> with_name("DeleteProduct")
             |> with_open_api()
 
-        app.run(null);
+        app.run(null)
     si
 
     @IL.name("Product")

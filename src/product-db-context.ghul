@@ -16,7 +16,7 @@ namespace ProductAPI is
         products: DbSet[PRODUCT]
 
         init(options: DbContextOptions) is
-            super.init(options);
+            super.init(options)
         si
     si
 si

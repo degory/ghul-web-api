@@ -12,7 +12,7 @@ namespace ProductAPI is
         _connection_string: string
 
         init(connection_string: string) is
-            _connection_string = connection_string;
+            _connection_string = connection_string
         si
 
         // Run pragma+CREATE TABLE once at startup. Returns Task so the
@@ -27,7 +27,7 @@ namespace ProductAPI is
             await command.execute_non_query_async()
 
             connection.close()
-            return;
+            return
         si
 
         create_product(product: PRODUCT) -> Tasks.TASK[int] is
@@ -43,7 +43,7 @@ namespace ProductAPI is
 
             connection.close()
 
-            return Convert.to_int32(scalar);
+            return Convert.to_int32(scalar)
         si
 
         get_product(id: int) -> Tasks.TASK[PRODUCT?] is
@@ -64,12 +64,12 @@ namespace ProductAPI is
                 result = PRODUCT()
                 result.id = reader.get_int32(0)
                 result.name = reader.get_string(1)
-                result.price = reader.get_double(2);
+                result.price = reader.get_double(2)
             fi
 
             connection.close()
 
-            return result;
+            return result
         si
 
         update_product(id: int, product: PRODUCT) -> Tasks.TASK[bool] is
@@ -87,7 +87,7 @@ namespace ProductAPI is
 
             connection.close()
 
-            return rows > 0;
+            return rows > 0
         si
 
         delete_product(id: int) -> Tasks.TASK[bool] is
@@ -102,7 +102,7 @@ namespace ProductAPI is
 
             connection.close()
 
-            return rows > 0;
+            return rows > 0
         si
     si
 si

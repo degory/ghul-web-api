@@ -10,7 +10,7 @@ namespace Test is
 
     class FAILURE: System.Exception is
         init(message: string) is
-            super.init(message);
+            super.init(message)
         si
     si
 
@@ -24,31 +24,31 @@ namespace Test is
 
             let env_url = System.Environment.get_environment_variable("WEBAPI_URL")
             if env_url? then
-                base_url = env_url;
+                base_url = env_url
             else
-                base_url = "http://localhost:5092";
+                base_url = "http://localhost:5092"
             fi
         si
 
         fail(message: string) is
             failures = failures + 1
-            Std.write_line("FAIL: {message}");
+            Std.write_line("FAIL: {message}")
         si
 
         assert_status(label: string, response: HttpResponseMessage, expected: int) is
             let actual = cast int(response.status_code)
             if actual != expected then
-                fail("{label}: expected status {expected}, got {actual}");
+                fail("{label}: expected status {expected}, got {actual}")
             else
-                Std.write_line("ok: {label} -> {actual}");
+                Std.write_line("ok: {label} -> {actual}")
             fi
         si
 
         assert_contains(label: string, body: string, needle: string) is
             if body.index_of(needle) < 0 then
-                fail("{label}: expected body to contain '{needle}', got '{body}'");
+                fail("{label}: expected body to contain '{needle}', got '{body}'")
             else
-                Std.write_line("ok: {label} body contains '{needle}'");
+                Std.write_line("ok: {label} body contains '{needle}'")
             fi
         si
 
@@ -63,16 +63,16 @@ namespace Test is
             while !ready /\ attempts < 60 do
                 try
                     client.get_async("{base_url}/products/0").result
-                    ready = true;
+                    ready = true
                 catch ex: System.Exception
                     Thread.sleep(500)
-                    attempts = attempts + 1;
+                    attempts = attempts + 1
                 yrt
             od
 
             if !ready then
                 Std.write_line("server did not become ready")
-                System.Environment.exit(2);
+                System.Environment.exit(2)
             fi
         si
 
@@ -122,17 +122,17 @@ namespace Test is
             if failures > 0 then
                 Std.write_line("")
                 Std.write_line("{failures} check(s) failed")
-                return 1;
+                return 1
             fi
 
             Std.write_line("")
             Std.write_line("all checks passed")
-            return 0;
+            return 0
         si
 
         entry() static is
             let exit_code = SMOKE_TEST().run()
-            System.Environment.exit(exit_code);
+            System.Environment.exit(exit_code)
         si
     si
 si
